@@ -130,7 +130,7 @@ namespace Magento {
 				}
 			}
 			catch(Soup.XMLRPC.Fault e) {
-				debug("Error while processing the response: %s",e.message);
+				error("While processing the response: %s",e.message);
 			}
 		}
 
@@ -138,7 +138,12 @@ namespace Magento {
 			//client.methodCall('call', [ client.sessionId, api, args ], cb)
 
 			var message = Soup.XMLRPC.request_new(this.uri,"call", typeof(string),session_id, typeof(string),api, typeof(ValueArray),apiargs, GLib.Type.INVALID);
-
+						
+			debug(message.method);
+			debug(message.reason_phrase);
+			debug(message.uri.to_string(false));
+			debug((string)message.request_body.flatten().data);
+			
 			session.send_message(message);
 
 			string data = (string) message.response_body.flatten().data;

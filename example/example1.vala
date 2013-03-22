@@ -1,4 +1,4 @@
-// Example from http://kushaldas.in/2010/03/22/how-to-do-xmlrpc-calls-in-vala-using-libsoup-tutorial/
+// Example from http://kushaldas.in/posts/how-to-do-xmlrpc-calls-in-vala-using-libsoup-tutorial.html
 // Compile with  valac --pkg libsoup-2.4 --thread example1.vala
 // run with G_MESSAGES_DEBUG=all ./example1 
 
@@ -23,4 +23,3 @@ public void main(string[] args) {
 	//print(msg);
 
 }
-
