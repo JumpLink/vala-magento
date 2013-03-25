@@ -4,7 +4,7 @@ namespace Magento {
 		XMLRPC connection; // TODO interface bauen damit Verbindungsart z.B. mit SOAP ausgetauscht werden kann
 
 		public API(Magento.Config config) {
-			connection = new XMLRPC(config);
+			connection = new Magento.XMLRPC(config);
 			connection.login();
 		}
 
@@ -19,9 +19,9 @@ namespace Magento {
 		 * @param attributes Array of catalogProductRequestAttributes (optional)
 		 * @param productIdentifierType Defines whether the product ID or SKU value is passed in the "product" parameter.
 		 */
-		public Value catalog_product_info (string productId, string storeView, ValueArray? attributes, string productIdentifierType) {
+		public GLib.Value catalog_product_info (string productId, string storeView, ValueArray? attributes, string productIdentifierType) {
 
-			ValueArray params = new ValueArray(4);
+			GLib.ValueArray params = new GLib.ValueArray(4);
 
 			params.append(productId);
 
@@ -39,14 +39,19 @@ namespace Magento {
 		 * @param filters Array of filters by attributes (optional)
 		 * @param storeView Store view ID or code (optional)
 		 */
-		public Value catalog_product_list (HashTable<string,Value?> filter, string storeView) {
+		public GLib.ValueArray catalog_product_list (GLib.HashTable<string,Value?> filter, string storeView) {
 
-			ValueArray params = new ValueArray(2);
+			GLib.ValueArray params = new ValueArray(2);
 
 			params.append(filter);
 			params.append("shop_de");
 
-			return connection.call("catalog_product.list", params);
+			GLib.Value result_as_gvalue = connection.call("catalog_product.list", params);
+			if (result_as_gvalue.type_name() == "GValueArray") {
+				return  ((GLib.ValueArray)result_as_gvalue).copy(); // TODO do this witout a copy?
+			} else {
+				error("Wrong type of return value");
+			}
 		}
 	}
 }
