@@ -119,14 +119,18 @@ namespace Magento {
 			}
 		}
 
-		public void parse_method_response(string data) {
+		public Value parse_method_response(string data) {
 			string _data = data.replace("<nil/>", ""); // WORKADOUND nil is not supportet?
-			Value v = Value(typeof(HashTable));
+			Value result = Value(typeof(HashTable));
 			try {
-				if(Soup.XMLRPC.parse_method_response (_data, -1, out v)) {
+				if(Soup.XMLRPC.parse_method_response (_data, -1, out result)) {
 					debug("parsed");
-					print_value_types(v);
-					print_value(v);
+					//print_value_types(v);
+					//print_value(v);
+					return result;
+				}
+				else {
+					error("While processing the response!");
 				}
 			}
 			catch(Soup.XMLRPC.Fault e) {
@@ -134,7 +138,7 @@ namespace Magento {
 			}
 		}
 
-		public void call (string api, ValueArray? apiargs) {
+		public Value call (string api, ValueArray? apiargs) {
 			//client.methodCall('call', [ client.sessionId, api, args ], cb)
 
 			var message = Soup.XMLRPC.request_new(this.uri,"call", typeof(string),session_id, typeof(string),api, typeof(ValueArray),apiargs, GLib.Type.INVALID);
@@ -148,7 +152,7 @@ namespace Magento {
 
 			string data = (string) message.response_body.flatten().data;
 
-			parse_method_response(data);
+			return parse_method_response(data);
 		}
 	}	
 }

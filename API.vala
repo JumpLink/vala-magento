@@ -8,6 +8,10 @@ namespace Magento {
 			connection.login();
 		}
 
+		~API() {
+			connection.end();
+		}
+
 		/**
 		 * Allows you to retrieve information about the required product.
 		 * @param productId Product ID or SKU
@@ -15,7 +19,7 @@ namespace Magento {
 		 * @param attributes Array of catalogProductRequestAttributes (optional)
 		 * @param productIdentifierType Defines whether the product ID or SKU value is passed in the "product" parameter.
 		 */
-		public void catalog_product_info (string productId, string storeView, CatalogProductRequestAttributes? attributes, string productIdentifierType) {
+		public Value catalog_product_info (string productId, string storeView, ValueArray? attributes, string productIdentifierType) {
 
 			ValueArray params = new ValueArray(4);
 
@@ -27,8 +31,7 @@ namespace Magento {
 
 			params.append(productIdentifierType);
 
-			connection.call("catalog_product.info", params);
-			connection.end();
+			return connection.call("catalog_product.info", params);
 		}
 
 		/**
@@ -36,15 +39,14 @@ namespace Magento {
 		 * @param filters Array of filters by attributes (optional)
 		 * @param storeView Store view ID or code (optional)
 		 */
-		public void catalog_product_list (HashTable<string,Value?> filter, string storeView) {
+		public Value catalog_product_list (HashTable<string,Value?> filter, string storeView) {
 
 			ValueArray params = new ValueArray(2);
 
 			params.append(filter);
 			params.append("shop_de");
 
-			connection.call("catalog_product.list", params);
-			connection.end();
+			return connection.call("catalog_product.list", params);
 		}
 	}
 }
