@@ -54,9 +54,7 @@ namespace Magento {
 				debug(v.get_boolean().to_string()+"\n"+data);
 			} else {
 				error("During Disconnection: "+v.get_boolean().to_string()+"\n"+data);
-			}
-
-			
+			}			
 		}
 
 		private void print_tabs(int tabs) {
@@ -130,11 +128,11 @@ namespace Magento {
 					return result;
 				}
 				else {
-					error("While processing the response!");
+					return "Error while processing the response!";
 				}
 			}
 			catch(Soup.XMLRPC.Fault e) {
-				error("While processing the response: %s",e.message);
+				return "Error while processing the response: "+e.message;
 			}
 		}
 
