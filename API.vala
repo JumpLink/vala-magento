@@ -1,6 +1,6 @@
 namespace Magento {
 
-	public class API : Object {
+	public class API : GLib.Object {
 		XMLRPC connection; // TODO interface bauen damit Verbindungsart z.B. mit SOAP ausgetauscht werden kann
 
 		public API(Magento.Config config) {
@@ -25,11 +25,8 @@ namespace Magento {
 			GLib.ValueArray params = new GLib.ValueArray(4);
 
 			params.append(productId);
-
 			params.append(storeView);
-
 			params.append(attributes); // TODO params.append(attributes);
-
 
 			params.append(productIdentifierType);
 
@@ -40,7 +37,8 @@ namespace Magento {
 			} else if (result_as_gvalue.type_name() == "gchararray") {
 				GLib.HashTable<string,Value?> error = Soup.value_hash_new ();
 				error.insert("error", result_as_gvalue);
-				GLib.warning((string)result_as_gvalue);
+				error.insert("sku", productId);
+				GLib.warning(((string)result_as_gvalue)+" productId: "+productId);
 				return error;
 			} else {
 				string error_string = "Wrong type of return value: "+result_as_gvalue.type_name();

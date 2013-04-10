@@ -2,7 +2,7 @@ using Soup;
 
 namespace Magento {
 
-	public class XMLRPC : Object {
+	public class XMLRPC : GLib.Object {
 
 		Soup.Session session;
 		string session_id;
