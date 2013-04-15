@@ -1,3 +1,5 @@
+using Gee;
+
 namespace Magento {
 
 	public class API : GLib.Object {
@@ -51,17 +53,21 @@ namespace Magento {
 
 		/**
 		 * Allows you to retrieve the list of products.
-		 * @param filter Table of filters by attributes (optional)
+		 * @param filter Table of filters by attributes (optional) 
 		 * @param storeView Store view ID or code (optional)
 		 * @return A new GLib.ValueArray with a GLib.HashTable for each product.
 		 * @see {@link [http://www.magentocommerce.com/wiki/doc/webservices-api/api/catalog_product#catalog_product.list]}.
 		 * @see {@link [http://www.magentocommerce.com/api/soap/catalog/catalogProduct/catalog_product.list.html]}.
 		 */
-		public GLib.ValueArray catalog_product_list (GLib.HashTable<string,Value?> filter, string storeView) {
+		public GLib.ValueArray catalog_product_list (GLib.HashTable<string,Value?>? filter, string storeView) {
 
 			GLib.ValueArray params = new ValueArray(2);
 
-			params.append(filter);
+			if(filter != null)
+				params.append(filter);
+			else
+				params.append(Soup.value_hash_new ());
+
 			params.append(storeView);
 
 			GLib.Value result_as_gvalue = connection.call("catalog_product.list", params);
@@ -76,6 +82,47 @@ namespace Magento {
 				GLib.warning(error_string);
 				return error_result;
 			}
+		}
+
+
+		/**
+		 * Just return all available sku's
+		 */
+		public Gee.HashSet<string> catalog_product_list_all_skus () {
+			Gee.HashSet<string> result = new Gee.HashSet<string> ();
+			GLib.ValueArray products = this.catalog_product_list (null, "");
+			foreach (GLib.Value product in products) {
+				if (product.type_name () == "GHashTable") {
+					GLib.HashTable<string,Value?> vhash = (GLib.HashTable<string,GLib.Value?>)product;
+					vhash.for_each ((attribute__key, attribute_value) => {
+						if(attribute_value.type_name() == "gchararray" || attribute_value.type_name () == "GValueArray") {
+							switch (attribute__key) {
+								case "product_id":
+									break;
+								case "sku":
+									result.add ( attribute_value.get_string () );
+									break;
+								case "category_ids":
+									break;
+								case "set":
+									break;
+								case "name":
+									break;
+								case "type":
+									break;
+								default:
+									warning ("unknown attribute: "+attribute__key);
+									break;
+							}
+						} else {
+							warning ("wrong type: "+attribute_value.type_name ()+" "+attribute__key);
+						}
+					});
+				} else {
+					warning ("Wrong data structure: "+product.type_name ());
+				}
+			}
+			return result;
 		}
 
 		/**
@@ -101,8 +148,11 @@ namespace Magento {
 			GLib.Value result_as_gvalue = connection.call("catalog_product.update", params);
 			if (result_as_gvalue.type_name() == "gboolean") {
 				return  (bool)result_as_gvalue; // TODO do this witout a copy?
+			} else if (result_as_gvalue.type_name() == "gchararray") {
+				GLib.warning ("Return value is gchararray: "+result_as_gvalue.get_string ());
+				return false;
 			} else {
-				GLib.warning("Wrong type of return value: "+result_as_gvalue.type_name());
+				GLib.warning ("Wrong type of return value: "+result_as_gvalue.type_name ());
 				return false;
 			}
 		}
